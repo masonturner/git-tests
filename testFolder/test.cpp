@@ -75,6 +75,32 @@ bool uart_put(UARTNum num, char ch) {
 	return true;
 }
 
+int uart_puts(UARTNum num, const char *buf) {
+	int ctr=0;
+	while (*buf) {
+		if (!uart_put(num, *buf++)) // if(uart_put(num, *buf++) == false)
+			break;
+		ctr++;
+	}
+	return ctr;
+}
+
+int uart_get(UARTNum num) {
+	UARTData &data = uartdata[num];
+	USART_t &usart = *uarts[num];
+	
+	if (data.inbuf_pos == 0)
+		return -1;
+
+	usart.CTRLA &= ~USART_RXCINTLVL_gm;
+	char ch = data.inbuf[0];
+	data.inbuf_pos--;
+	memmove(data.inbuf, data.inbuf+1, data.inbuf_pos);
+	usart.CTRLA |= USART_RXCINTLVL_gm;
+	
+	return ch;
+}
+
 void uart_putch(UARTNum num, char ch) {
 	UARTData &data = uartdata[num];
 	
