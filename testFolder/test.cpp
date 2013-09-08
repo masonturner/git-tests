@@ -90,6 +90,9 @@ void uart_putch(UARTNum num, char ch) {
 static void receive(UARTNum num) __attribute__((always_inline));
 static void transmit(UARTNum num) __attribute__((always_inline));
 
+/*
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed elit gravida, scelerisque sapien nec, ultrices mauris. Sed at augue in dui facilisis malesuada. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+*/
 static void receive(UARTNum num) {
 	UARTData &data = uartdata[num];
 	uint8_t byte = uarts[num]->DATA;
