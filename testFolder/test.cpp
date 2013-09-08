@@ -7,6 +7,17 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <string.h>
+
+static PORT_t &uartport_xbee = PORTE;
+#define RXVEC_XBEE USARTE1_RXC_vect
+#define TXVEC_XBEE USARTE1_DRE_vect
+static USART_t &uart_xbee = USARTE1;
+static const int bsel_xbee = 3333;
+static const int bscale_xbee = 0xC;
+static const int txpin_xbee = 7;
+static const int rxpin_xbee = 6;
+
+
 /*
 // debug/USB uart
 static USART_t &uart_usb = USARTC0;
@@ -19,14 +30,6 @@ static const int bsel_usb = 2158; // makes 115200 baud
 static const int bscale_usb = 0xA;
 */
 // xbee uart
-static PORT_t &uartport_xbee = PORTE;
-#define RXVEC_XBEE USARTE1_RXC_vect
-#define TXVEC_XBEE USARTE1_DRE_vect
-static USART_t &uart_xbee = USARTE1;
-static const int bsel_xbee = 3333;
-static const int bscale_xbee = 0xC;
-static const int txpin_xbee = 7;
-static const int rxpin_xbee = 6;
 
 struct UARTData {
 	char outbuf[64];
@@ -35,8 +38,8 @@ struct UARTData {
 	volatile uint8_t inbuf_pos;
 };
 
-static UARTData uartdata[2];
 static USART_t *const uarts[2] = { &USARTC0, &USARTE1 };
+static UARTData uartdata[2];
 
 void uart_init() {
 	uartport_usb.OUTSET = _BV(txpin_usb); // make pin high to avoid transmitting a false start bit on startup
