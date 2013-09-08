@@ -43,7 +43,7 @@ static UARTData uartdata[2];
 
 void uart_init() {
 	uartport_usb.OUTSET = _BV(txpin_usb); // make pin high to avoid transmitting a false start bit on startup
-	uartport_usb.DIRSET = _BV(txpin_usb); // 
+	uartport_usb.DIRSET = _BV(txpin_usb);
 	
 	uart_usb.CTRLA = USART_RXCINTLVL_LO_gc;
 	uart_usb.CTRLB = USART_RXEN_bm | USART_TXEN_bm | USART_CLK2X_bm;
@@ -66,11 +66,11 @@ bool uart_put(UARTNum num, char ch) {
 	UARTData &data = uartdata[num];
 	USART_t &usart = *uarts[num];
 	
-	if (data.outbuf_pos >= sizeof(data.outbuf))
+	if (data.outbuf_pos >= sizeof(data.outbuf)) //if we're about to overrun the outbuf, stop here!
 		return false;
 		
-	usart.CTRLA &= ~USART_DREINTLVL_gm;
-	data.outbuf[data.outbuf_pos++] = ch;
+	usart.CTRLA &= ~USART_DREINTLVL_gm;   // disable tx interrupt to make inserting data and moving
+	data.outbuf[data.outbuf_pos++] = ch;  //     outbuf_pos an "atomic" operation
 	usart.CTRLA |= USART_DREINTLVL_LO_gc; // enable transmit interrupt
 	return true;
 }
@@ -78,7 +78,7 @@ bool uart_put(UARTNum num, char ch) {
 int uart_puts(UARTNum num, const char *buf) {
 	int ctr=0;
 	while (*buf) {
-		if (!uart_put(num, *buf++))
+		if (!uart_put(num, *buf++)) // if(uart_put(num, *buf++) == false)
 			break;
 		ctr++;
 	}
@@ -134,22 +134,22 @@ static void receive(UARTNum num) {
 		debug_setLED(ERROR_LED, true);
 	}
 		
-	if (data.inbuf_pos >= sizeof(data.inbuf))
+	if (data.inbuf_pos >= sizeof(data.inbuf)) //check if we're about to overrun the buffer
 		return;
 		
-	data.inbuf[data.inbuf_pos++] = byte;
+	data.inbuf[data.inbuf_pos++] = byte; //finally, insert the data that we read in the beginning to the end of the buffer
 }
 
 static void transmit(UARTNum num) {
 	UARTData &data = uartdata[num];
 	
-	if (data.outbuf_pos > 0) {
+	if (data.outbuf_pos > 0) {   //is there anything in the buffer?
 		uarts[num]->DATA = data.outbuf[0];
 		data.outbuf_pos--;
 		
-		if (data.outbuf_pos > 0)
-			memmove(data.outbuf, data.outbuf+1, data.outbuf_pos);
-	} else {
+		if (data.outbuf_pos > 0) //after sending data, is there anything left?
+			memmove(data.outbuf, data.outbuf+1, data.outbuf_pos); // memmove(dest, src, count)
+	} else { //if there is nothing left, turn off the interrupt
 		uarts[num]->CTRLA &= ~USART_DREINTLVL_gm; // disable transmit interrupt
 	}
 }
