@@ -7,7 +7,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <string.h>
-
+/*
 // debug/USB uart
 static USART_t &uart_usb = USARTC0;
 #define RXVEC_USB USARTC0_RXC_vect
@@ -17,7 +17,7 @@ static const int txpin_usb = 3;
 static const int rxpin_usb = 2;
 static const int bsel_usb = 2158; // makes 115200 baud
 static const int bscale_usb = 0xA;
-
+*/
 // xbee uart
 static PORT_t &uartport_xbee = PORTE;
 #define RXVEC_XBEE USARTE1_RXC_vect
