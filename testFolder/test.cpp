@@ -42,7 +42,7 @@ static USART_t *const uarts[2] = { &USARTC0, &USARTE1 };
 static UARTData uartdata[2];
 
 void uart_init() {
-	uartport_usb.OUTSET = _BV(txpin_usb); // make pin high to avoid transmitting a false start bit on startup
+	uartport_usb.OUTSET = _MV(txpin_usb); // make pin be whateva I wayunt
 	uartport_usb.DIRSET = _BV(txpin_usb);
 	
 	uart_usb.CTRLA = USART_RXCINTLVL_LO_gc;
